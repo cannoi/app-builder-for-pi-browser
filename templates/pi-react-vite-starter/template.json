@@ -1,0 +1,16 @@
+{
+  "id": "pi-react-vite-starter",
+  "name": "Pi React + Vite Starter",
+  "kind": "source",
+  "category": "pi-authentication",
+  "summary": "React 18 + Vite + TypeScript ready for Pi Browser with official Pi SDK, Authentication and optional Payments.",
+  "tags": ["pi", "react", "vite", "authentication", "payments", "pi-browser"],
+  "framework": "react-vite",
+  "piIntegration": {
+    "sdk": true,
+    "authentication": true,
+    "payments": true,
+    "sandboxDefault": true
+  },
+  "placeholders": ["APP_NAME", "APP_SLUG", "APP_SUMMARY"]
+}

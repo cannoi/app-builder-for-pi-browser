@@ -1,0 +1,17 @@
+{
+  "id": "pi-auth-payments",
+  "name": "Pi Auth + Payments App",
+  "kind": "source",
+  "category": "pi-payments",
+  "summary": "Production-oriented starter with Pi Authentication, Payments lifecycle, and backend verification examples.",
+  "tags": ["pi", "authentication", "payments", "commerce", "pi-browser"],
+  "framework": "react-vite",
+  "piIntegration": {
+    "sdk": true,
+    "authentication": true,
+    "payments": true,
+    "sandboxDefault": true,
+    "backendRequired": true
+  },
+  "placeholders": ["APP_NAME", "APP_SLUG", "APP_SUMMARY"]
+}

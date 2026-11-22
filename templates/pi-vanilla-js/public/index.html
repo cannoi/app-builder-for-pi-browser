@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>{{APP_NAME}}</title>
+  <script src="https://sdk.minepi.com/pi-sdk.js"></script>
+  <style>
+    body { font-family: system-ui, sans-serif; background:#0e1116; color:#e8eaed; margin:0; padding:24px; }
+    .card { max-width:420px; margin:40px auto; padding:24px; border-radius:16px; background:#161b22; border:1px solid #2a3140; }
+    button { border:0; border-radius:10px; padding:12px 18px; font-weight:600; background:linear-gradient(135deg,#7c5cff,#4f8cff); color:#fff; cursor:pointer; }
+    button:disabled { opacity:.55; }
+    .ok { color:#3fb950; } .err { color:#ff7b72; } .muted { opacity:.65; font-size:13px; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>{{APP_NAME}}</h1>
+    <p>{{APP_SUMMARY}}</p>
+    <button id="loginBtn">Sign in with Pi</button>
+    <button id="payBtn" hidden>Pay 1 Test-Pi</button>
+    <p id="status" class="muted">Ready — test inside Pi Sandbox</p>
+  </div>
+  <script>
+    const statusEl = document.getElementById('status');
+    const loginBtn = document.getElementById('loginBtn');
+    const payBtn = document.getElementById('payBtn');
+    let user = null;
+
+    function setStatus(msg, cls) {
+      statusEl.className = cls || 'muted';
+      statusEl.textContent = msg;
+    }
+
+    // Official init — sandbox:true for development / Pi Sandbox
+    Pi.init({ version: '2.0', sandbox: true });
+
+    function onIncompletePaymentFound(payment) {
+      console.warn('Incomplete payment', payment);
+      // Resume via your backend in real apps
+    }
+
+    loginBtn.onclick = async () => {
+      loginBtn.disabled = true;
+      setStatus('Opening Pi Authentication…');
+      try {
+        const auth = await Pi.authenticate(['username', 'payments'], onIncompletePaymentFound);
+        user = auth.user;
+        user.accessToken = auth.accessToken;
+        setStatus('Signed in as @' + user.username, 'ok');
+        loginBtn.hidden = true;
+        payBtn.hidden = false;
+        // TODO: POST accessToken to your backend → GET /v2/me → create session
+      } catch (e) {
+        setStatus(e.message || 'Login cancelled', 'err');
+      } finally {
+        loginBtn.disabled = false;
+      }
+    };
+
+    payBtn.onclick = () => {
+      setStatus('Creating payment…');
+      Pi.createPayment(
+        { amount: 1, memo: 'Demo — {{APP_NAME}}', metadata: { productId: 'demo-1' } },
+        {
+          onReadyForServerApproval: async (paymentId) => {
+            setStatus('Approving ' + paymentId + '…');
+            await fetch('/api/payments/approve', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ paymentId })
+            });
+          },
+          onReadyForServerCompletion: async (paymentId, txid) => {
+            setStatus('Completing…');
+            await fetch('/api/payments/complete', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ paymentId, txid })
+            });
+            setStatus('Payment completed', 'ok');
+          },
+          onCancel: () => setStatus('Payment cancelled', 'err'),
+          onError: (err) => setStatus(err?.message || 'Payment error', 'err')
+        }
+      );
+    };
+  </script>
+</body>
+</html>

@@ -1,0 +1,25 @@
+{
+  "name": "app-builder-pi-browser",
+  "version": "2.0.0-pi-browser",
+  "private": true,
+  "type": "module",
+  "description": "AI Builder that turns ideas into production-ready Pi Browser apps with Authentication, Payments and Ecosystem listing.",
+  "scripts": {
+    "start": "node src/server.js",
+    "test": "node --test tests/*.test.js",
+    "sim": "node sim-harness/run-all.mjs",
+    "test:a": "node --test tests/outcomes-schema-path.test.js"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "dependencies": {
+    "@octokit/rest": "^21.1.1",
+    "playwright": "^1.63.0",
+    "yaml": "^2.6.1"
+  },
+  "devDependencies": {
+    "acorn": "^8.14.0",
+    "acorn-walk": "^8.3.4"
+  }
+}
